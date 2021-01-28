@@ -5,8 +5,63 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TemptProj"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        Title="MainWindow" Height="507" Width="747" MinHeight=" 507" MinWidth="747">
+    <Grid >
+        <DockPanel LastChildFill="True" Margin="5" Background="White" >
+            
+            <StatusBar DockPanel.Dock="Bottom" BorderBrush="Black" BorderThickness="1" Height="34">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Port</Label>
+                    <ComboBox Grid.Column="1" x:Name="cmbPort" HorizontalContentAlignment="Right" ></ComboBox>
+                    <Label Grid.Column="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Baud</Label>
+                    <ComboBox Grid.Column="3" x:Name="cmbBaud" HorizontalContentAlignment="Right">
+                        <ComboBoxItem HorizontalContentAlignment="Right">9600</ComboBoxItem>
+                        <ComboBoxItem HorizontalContentAlignment="Right" IsSelected="True" >15200</ComboBoxItem>
+                        <ComboBoxItem HorizontalContentAlignment="Right">230400</ComboBoxItem>
+                        <ComboBoxItem HorizontalContentAlignment="Right">460800</ComboBoxItem>
+                    </ComboBox>
+                    <Button Grid.Column= "5" x:Name="btnConnect" Content="Connect" Margin="0,0,-12,0" Grid.ColumnSpan="2" Click="btnConnect_Click"></Button>
+                </Grid>
+
+            </StatusBar>
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                
+
+                <GroupBox Header="View" Grid.Column="0" Background="WhiteSmoke">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
+                            <Button x:Name="btnClr" Margin="5 5 5 0" Height="34" Width="72" UseLayoutRounding="True" Background="White">
+                                <Image Source="c:\users\npt\documents\visual studio 2015\Projects\TemptProj\TemptProj\korzinu-na-rabochem-stole.png"></Image>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock DockPanel.Dock="Top" x:Name="txtBlckView" Background="White"></TextBlock>
+                    </DockPanel>
+                </GroupBox>
+                    
+                    
+                    
+                
+
+                <GroupBox Header="Unknown"  Grid.Column="1" Background="WhiteSmoke">
+                    <TextBlock x:Name="txtBlckUnknown" Background="White"></TextBlock>
+                </GroupBox>
+
+            </Grid>
+        </DockPanel>
+
     </Grid>
 </Window>
