@@ -47,16 +47,41 @@ namespace TemptProj
             if (Convert.ToBoolean(btnConnect.Tag) == false)
             {
                 try{
-                    m_serialPort = new SerialPort(Convert.ToString(cmbPort.SelectedValue), Convert.ToInt32(cmbBaud.SelectedValue), Parity.None, 8, StopBits.One);
+
+                    string _portName = cmbPort.Text;
+                    int _portBaud = Convert.ToInt32(cmbBaud.Text);
+
+                    m_serialPort = new SerialPort(_portName, _portBaud, Parity.None, 8, StopBits.One);
+                    txtBlckView.Inlines.Add(new Run(_portName + '\n') { Foreground = Brushes.Blue});
+                    txtBlckView.Inlines.Add(new Run(_portBaud.ToString() + '\n') { Foreground = Brushes.Blue });
+                    txtBlckView.Inlines.Add(new Run("Parity None\n") { Foreground = Brushes.Blue });
+                    txtBlckView.Inlines.Add(new Run("8 bits\n") { Foreground = Brushes.Blue });
+                    txtBlckView.Inlines.Add(new Run("StopBits One\n") { Foreground = Brushes.Blue });
+
                     m_serialPort.Open();
+                    txtBlckView.Inlines.Add(new Run("Port has been opened\n") { Foreground = Brushes.Blue });
+                    btnConnect.Tag = true;
                 }
                 catch
                 {
-
+                    Brush _oldBrush = txtBlckView.Foreground;
+                    txtBlckView.Inlines.Add(new Run("Failed to open port\n\n") { Foreground = Brushes.Red });
                 }
-                btnConnect.Tag = true;
-                btnConnect.Content = "Disconnect";
+                
             }
+            else
+            {
+                btnConnect.Tag = false;
+                m_serialPort.Close();
+                txtBlckView.Inlines.Add(new Run("Port has been closed\n") { Foreground = Brushes.Red });
+            }
+
+            btnConnect.Content = Convert.ToBoolean(btnConnect.Tag) ? "Disconnect" : "Connect";
+        }
+
+        private void btnClr_click(object sender, RoutedEventArgs e)
+        {
+            txtBlckView.Text = String.Empty;
         }
     }
 }

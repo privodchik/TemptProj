@@ -44,8 +44,8 @@
                 <GroupBox Header="View" Grid.Column="0" Background="WhiteSmoke">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
-                            <Button x:Name="btnClr" Margin="5 5 5 0" Height="34" Width="72" UseLayoutRounding="True" Background="White">
-                                <Image Source="c:\users\npt\documents\visual studio 2015\Projects\TemptProj\TemptProj\korzinu-na-rabochem-stole.png"></Image>
+                            <Button x:Name="btnClr" Margin="5 5 5 0" Height="34" Width="72" UseLayoutRounding="True" Background="White" Click="btnClr_click">
+                                <Image Source="Resources/korzinu-na-rabochem-stole.png"></Image>
                             </Button>
                         </StackPanel>
                         <TextBlock DockPanel.Dock="Top" x:Name="txtBlckView" Background="White"></TextBlock>
