@@ -43,11 +43,20 @@
 
                 <GroupBox Header="View" Grid.Column="0" Background="WhiteSmoke">
                     <DockPanel>
-                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
-                            <Button x:Name="btnClr" Margin="5 5 5 0" Height="34" Width="72" UseLayoutRounding="True" Background="White" Click="btnClr_click">
+                        <DockPanel DockPanel.Dock="Bottom">
+                            <Button DockPanel.Dock="Right" x:Name="btnClr" Margin="5 5 5 5" Height="34" Width="72" UseLayoutRounding="True" Background="White" Click="btnClr_click">
                                 <Image Source="Resources/korzinu-na-rabochem-stole.png"></Image>
                             </Button>
-                        </StackPanel>
+                            <GroupBox Header="Errors">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label VerticalContentAlignment="Center" Margin="2" >eWR</Label>
+                                    <TextBlock x:Name="txtBlckEWr" Margin="2" Text="0" Width="50" TextAlignment="Center" VerticalAlignment="Center"  TextWrapping="Wrap"></TextBlock>
+                                    <Label VerticalContentAlignment="Center" Margin="2">eRD</Label>
+                                    <TextBlock x:Name="txtBlckERd" Margin="2" Text="0" Width="50" TextAlignment="Center" VerticalAlignment="Center"  TextWrapping="Wrap"></TextBlock>
+                                    <Button x:Name="btnErrReset" Margin="2" Width="50" Click="btnErrReset_click">Reset</Button>
+                                </StackPanel>
+                            </GroupBox>
+                        </DockPanel>
                         <TextBlock DockPanel.Dock="Top" x:Name="txtBlckView" Background="White"></TextBlock>
                     </DockPanel>
                 </GroupBox>

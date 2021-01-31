@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
 
+
+
 namespace TemptProj
 {
     /// <summary>
@@ -22,6 +24,8 @@ namespace TemptProj
     public partial class MainWindow : Window
     {
         private SerialPort m_serialPort;
+        private Modbus.ModBus m_modbus = new Modbus.ModBus();
+        private System.Threading.CancellationTokenSource m_cts;
         
         public MainWindow()
         {
@@ -40,6 +44,51 @@ namespace TemptProj
 
                 cmbPort.SelectedIndex = 0;
             }
+        }
+
+        void background_func()
+        {
+            m_cts = new System.Threading.CancellationTokenSource();
+            modbus_task(m_cts.Token);
+
+        }
+        async void modbus_task(System.Threading.CancellationToken _ct)
+        {
+            while (!_ct.IsCancellationRequested)
+            {
+                m_serialPort.DiscardInBuffer();
+                m_serialPort.DiscardOutBuffer();
+                byte[] _msg = m_modbus.make_frame(1);
+                m_serialPort.Write(_msg, 0, _msg.Length);
+                Task _taskSendMsg = Task.Run(async delegate
+                {
+                    while (m_serialPort.BytesToWrite > 0)
+                    {
+                        await Task.Delay(1, _ct);
+                    }
+                }, _ct);
+                try
+                {
+                    await waitWithTimout(_taskSendMsg, 5, _ct);
+                    txtBlckERd.Text = (++m_modbus.ErrorRDCounter).ToString();
+                }
+                catch
+                {
+                    m_modbus.ErrorWRCounter++;
+                    txtBlckEWr.Text = m_modbus.ErrorWRCounter.ToString();
+                }
+            }
+        }
+
+        async Task waitWithTimout(Task _task, int _timout, System.Threading.CancellationToken _ct)
+        {
+            Task _delayTask = Task.Delay(_timout, _ct);
+            Task _firstToFinish = await Task.WhenAny(_task, _delayTask);
+            if (_firstToFinish == _delayTask)
+            {
+                throw new TimeoutException();
+            }
+            await _task;
         }
 
         private void btnConnect_Click(object sender, RoutedEventArgs e)
@@ -61,6 +110,8 @@ namespace TemptProj
                     m_serialPort.Open();
                     txtBlckView.Inlines.Add(new Run("Port has been opened\n") { Foreground = Brushes.Blue });
                     btnConnect.Tag = true;
+
+                    background_func();
                 }
                 catch
                 {
@@ -72,6 +123,7 @@ namespace TemptProj
             else
             {
                 btnConnect.Tag = false;
+                m_cts.Cancel();
                 m_serialPort.Close();
                 txtBlckView.Inlines.Add(new Run("Port has been closed\n") { Foreground = Brushes.Red });
             }
@@ -82,6 +134,12 @@ namespace TemptProj
         private void btnClr_click(object sender, RoutedEventArgs e)
         {
             txtBlckView.Text = String.Empty;
+        }
+
+        private void btnErrReset_click(object sender, RoutedEventArgs e)
+        {
+            m_modbus.ErrorWRCounter = 0;
+            m_modbus.ErrorRDCounter = 0;
         }
     }
 }
