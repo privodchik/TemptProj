@@ -38,7 +38,6 @@
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-
                 
 
                 <GroupBox Header="View" Grid.Column="0" Background="WhiteSmoke">
@@ -60,14 +59,26 @@
                         <TextBlock DockPanel.Dock="Top" x:Name="txtBlckView" Background="White"></TextBlock>
                     </DockPanel>
                 </GroupBox>
-                    
-                    
-                    
-                
 
-                <GroupBox Header="Unknown"  Grid.Column="1" Background="WhiteSmoke">
-                    <TextBlock x:Name="txtBlckUnknown" Background="White"></TextBlock>
-                </GroupBox>
+
+                <Grid ShowGridLines="True" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    
+                    <GroupBox Grid.Row="0" Header="Unknown"  Grid.Column="1" Background="WhiteSmoke">
+                        <TextBlock x:Name="txtBlckUnknown" Background="White"></TextBlock>
+                    </GroupBox>
+
+                    <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+                        
+                        
+                    </WrapPanel>
+                    
+                </Grid>
+                
+                
 
             </Grid>
         </DockPanel>

@@ -54,6 +54,7 @@ namespace TemptProj
         }
         async void modbus_task(System.Threading.CancellationToken _ct)
         {
+            txtBlckView.Inlines.Add("modbus task has been started\n");
             while (!_ct.IsCancellationRequested)
             {
                 m_serialPort.DiscardInBuffer();
@@ -70,14 +71,55 @@ namespace TemptProj
                 try
                 {
                     await waitWithTimout(_taskSendMsg, 5, _ct);
-                    txtBlckERd.Text = (++m_modbus.ErrorRDCounter).ToString();
+                    
                 }
                 catch
                 {
                     m_modbus.ErrorWRCounter++;
                     txtBlckEWr.Text = m_modbus.ErrorWRCounter.ToString();
                 }
+
+                Task _taskWaitMsg = Task.Run(async delegate {
+                    await Task.Delay(5, _ct);
+
+                    int _oldDataInInputBuffer = m_serialPort.BytesToRead;
+
+                    if (_oldDataInInputBuffer > 0)
+                    {
+                        while (true)
+                        {
+                            await Task.Delay(3, _ct);
+                            if (m_serialPort.BytesToRead == _oldDataInInputBuffer)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                _oldDataInInputBuffer = m_serialPort.BytesToRead;
+                            }
+                        }
+                        m_modbus.input_buffer_resize((byte)_oldDataInInputBuffer);
+                        m_serialPort.Read(m_modbus.input_buffer_get(), 0, _oldDataInInputBuffer);
+                    }
+                    else
+                    {
+                        ++m_modbus.ErrorRDCounter;
+                        
+                    }
+
+                }, _ct);
+
+                try
+                {
+                    txtBlckERd.Text = (m_modbus.ErrorRDCounter).ToString();
+                    await Task.Delay(100, _ct);
+                }
+                catch
+                {
+
+                }
             }
+            txtBlckView.Inlines.Add(new Run("modbus_task has been cancelled\n"));
         }
 
         async Task waitWithTimout(Task _task, int _timout, System.Threading.CancellationToken _ct)
@@ -138,8 +180,8 @@ namespace TemptProj
 
         private void btnErrReset_click(object sender, RoutedEventArgs e)
         {
-            m_modbus.ErrorWRCounter = 0;
-            m_modbus.ErrorRDCounter = 0;
+            txtBlckEWr.Text = (m_modbus.ErrorWRCounter = 0).ToString();
+            txtBlckERd.Text = (m_modbus.ErrorRDCounter = 0).ToString();
         }
     }
 }

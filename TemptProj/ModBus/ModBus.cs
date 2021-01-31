@@ -11,6 +11,8 @@ namespace TemptProj.Modbus
         public int ErrorWRCounter { get; set; }
         public int ErrorRDCounter { get; set; }
 
+        private byte[] m_inputBuffer; 
+
         public ModBus()
         {
             ErrorRDCounter = 0;
@@ -23,5 +25,18 @@ namespace TemptProj.Modbus
             _array[0] = Convert.ToByte(_address);
             return _array;
         }
+
+        public void copy_to_buffer(byte[] _array)
+        {
+            m_inputBuffer = new byte[_array.Length];
+            m_inputBuffer = _array;
+        }
+
+        public void input_buffer_resize(byte _length)
+        {
+            m_inputBuffer = new byte[_length];
+        }
+        public byte[] input_buffer_get() { return m_inputBuffer; }
+
     }
 }
