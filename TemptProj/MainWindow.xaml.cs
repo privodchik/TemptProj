@@ -55,19 +55,20 @@ namespace TemptProj
         async void modbus_task(System.Threading.CancellationToken _ct)
         {
             txtBlckView.Inlines.Add("modbus task has been started\n");
+            
+
             while (!_ct.IsCancellationRequested)
             {
-                m_serialPort.DiscardInBuffer();
+                System.Diagnostics.Stopwatch _time = new System.Diagnostics.Stopwatch();
+                _time.Start(); 
+
+                Task _cycleTime  = Task.Delay(100, _ct);
+                                  
                 m_serialPort.DiscardOutBuffer();
                 byte[] _msg = m_modbus.make_frame(1);
                 m_serialPort.Write(_msg, 0, _msg.Length);
-                Task _taskSendMsg = Task.Run(async delegate
-                {
-                    while (m_serialPort.BytesToWrite > 0)
-                    {
-                        await Task.Delay(1, _ct);
-                    }
-                }, _ct);
+
+                Task _taskSendMsg = Task.Run((Action)send_frame, _ct);
                 try
                 {
                     await waitWithTimout(_taskSendMsg, 5, _ct);
@@ -79,47 +80,23 @@ namespace TemptProj
                     txtBlckEWr.Text = m_modbus.ErrorWRCounter.ToString();
                 }
 
-                Task _taskWaitMsg = Task.Run(async delegate {
-                    await Task.Delay(5, _ct);
-
-                    int _oldDataInInputBuffer = m_serialPort.BytesToRead;
-
-                    if (_oldDataInInputBuffer > 0)
-                    {
-                        while (true)
-                        {
-                            await Task.Delay(3, _ct);
-                            if (m_serialPort.BytesToRead == _oldDataInInputBuffer)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                _oldDataInInputBuffer = m_serialPort.BytesToRead;
-                            }
-                        }
-                        m_modbus.input_buffer_resize((byte)_oldDataInInputBuffer);
-                        m_serialPort.Read(m_modbus.input_buffer_get(), 0, _oldDataInInputBuffer);
-                    }
-                    else
-                    {
-                        ++m_modbus.ErrorRDCounter;
-                        
-                    }
-
-                }, _ct);
+                m_serialPort.DiscardInBuffer();
+                await Task.Run((Action)receive_frame, _ct);
 
                 try
                 {
                     txtBlckERd.Text = (m_modbus.ErrorRDCounter).ToString();
-                    await Task.Delay(100, _ct);
+                    await _cycleTime;
                 }
                 catch
                 {
 
                 }
+                _time.Stop();
+                lblCycleTime.Content = _time.ElapsedMilliseconds;
             }
             txtBlckView.Inlines.Add(new Run("modbus_task has been cancelled\n"));
+            
         }
 
         async Task waitWithTimout(Task _task, int _timout, System.Threading.CancellationToken _ct)
@@ -131,8 +108,8 @@ namespace TemptProj
                 throw new TimeoutException();
             }
             await _task;
-        }
 
+        }
         private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
             if (Convert.ToBoolean(btnConnect.Tag) == false)

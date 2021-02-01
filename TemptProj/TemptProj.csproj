@@ -56,6 +56,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ModBus\Frame\BaseFrame.cs" />
+    <Compile Include="ModBus\Frame\IFrame.cs" />
+    <Compile Include="ModBus\Frame\ReadHoldings.cs" />
+    <Compile Include="ModBus\Frame\ReadInputs.cs" />
+    <Compile Include="ModBus\Frame\WriteHoldings.cs" />
+    <Compile Include="Work\MainWindow.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,7 +103,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="StateMachine\" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\korzinu-na-rabochem-stole.png" />
   </ItemGroup>
