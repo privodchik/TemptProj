@@ -23,7 +23,11 @@ namespace TemptProj
 
         async void receive_frame()
         {
-            await Task.Delay(5, m_cts.Token);
+            try
+            {
+                await Task.Delay(5, m_cts.Token);
+            }
+            catch { }
 
             int _oldDataInInputBuffer = m_serialPort.BytesToRead;
 
@@ -55,6 +59,15 @@ namespace TemptProj
 
         }
 
+        async void state_machine_task(int _periodMS)
+        {
+            while (true)
+            {
+                await Task.Delay(_periodMS);
+                m_stateMachine.operate();
+                lblState.Content = m_stateMachine.state_set_next().Name;
+            }
+        }
 
         void blink_task(int _periodMS)
         {

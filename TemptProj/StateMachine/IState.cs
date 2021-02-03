@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 namespace TemptProj.StateMachine
 {
 
-    enum eState
-    {
-        INI = 0,
-        READY,
-        RUN,
-        FLT
-    }
+
     interface IState
     {
+        
         void operate();
     }
 }

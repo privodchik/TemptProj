@@ -24,15 +24,22 @@ namespace TemptProj
     /// </summary>
     public partial class MainWindow : Window
     {
+        public StateMachine.StateMachine m_stateMachine;
+
         private SerialPort m_serialPort;
         private Modbus.ModBus m_modbus = new Modbus.ModBus();
         private System.Threading.CancellationTokenSource m_cts;
 
         private Timer m_timer;
 
+
+
         public MainWindow()
         {
             InitializeComponent();
+
+            m_stateMachine = new StateMachine.StateMachine(this);
+            lblState.Content = m_stateMachine.state_get().Name;
 
             btnConnect.Tag = false;
 
@@ -55,10 +62,11 @@ namespace TemptProj
             m_cts = new System.Threading.CancellationTokenSource();
             modbus_task(m_cts.Token);
 
-
             operate_task();
 
             blink_task(1000);
+
+            state_machine_task(2000);
 
 
         }

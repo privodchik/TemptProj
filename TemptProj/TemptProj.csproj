@@ -61,8 +61,13 @@
     <Compile Include="ModBus\Frame\ReadHoldings.cs" />
     <Compile Include="ModBus\Frame\ReadInputs.cs" />
     <Compile Include="ModBus\Frame\WriteHoldings.cs" />
+    <Compile Include="StateMachine\StFlt.cs" />
+    <Compile Include="StateMachine\StRdy.cs" />
     <Compile Include="StateMachine\IState.cs" />
     <Compile Include="StateMachine\State.cs" />
+    <Compile Include="StateMachine\StateMachine.cs" />
+    <Compile Include="StateMachine\StInit.cs" />
+    <Compile Include="StateMachine\StRun.cs" />
     <Compile Include="Work\MainWindow.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
