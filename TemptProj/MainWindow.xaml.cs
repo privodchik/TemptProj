@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
+using System.Threading;
 
 
 
@@ -26,7 +27,9 @@ namespace TemptProj
         private SerialPort m_serialPort;
         private Modbus.ModBus m_modbus = new Modbus.ModBus();
         private System.Threading.CancellationTokenSource m_cts;
-        
+
+        private Timer m_timer;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -48,8 +51,15 @@ namespace TemptProj
 
         void background_func()
         {
+
             m_cts = new System.Threading.CancellationTokenSource();
             modbus_task(m_cts.Token);
+
+
+            operate_task();
+
+            blink_task(1000);
+
 
         }
         async void modbus_task(System.Threading.CancellationToken _ct)
@@ -112,7 +122,7 @@ namespace TemptProj
         }
         private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            if (Convert.ToBoolean(btnConnect.Tag) == false)
+            if (Convert.ToBoolean(btnConnect.Tag) == false) // Disconnect state 
             {
                 try{
 
@@ -139,12 +149,15 @@ namespace TemptProj
                 }
                 
             }
-            else
+            else // Connect state
             {
                 btnConnect.Tag = false;
                 m_cts.Cancel();
                 m_serialPort.Close();
                 txtBlckView.Inlines.Add(new Run("Port has been closed\n") { Foreground = Brushes.Red });
+
+                blink_task_stop();
+
             }
 
             btnConnect.Content = Convert.ToBoolean(btnConnect.Tag) ? "Disconnect" : "Connect";

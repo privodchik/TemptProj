@@ -61,6 +61,8 @@
     <Compile Include="ModBus\Frame\ReadHoldings.cs" />
     <Compile Include="ModBus\Frame\ReadInputs.cs" />
     <Compile Include="ModBus\Frame\WriteHoldings.cs" />
+    <Compile Include="StateMachine\IState.cs" />
+    <Compile Include="StateMachine\State.cs" />
     <Compile Include="Work\MainWindow.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -103,9 +105,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="StateMachine\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\korzinu-na-rabochem-stole.png" />
   </ItemGroup>

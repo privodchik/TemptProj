@@ -74,6 +74,8 @@
                     <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
                         <Label Content="Ts = "></Label>
                         <Label x:Name="lblCycleTime" Width="50" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"></Label>
+                        <Label Content="Blink"></Label>
+                        <Rectangle x:Name="rectBlink" Width="25" RadiusX="25" RadiusY="25" Stroke="Black"></Rectangle>
                     </WrapPanel>
                     
                 </Grid>

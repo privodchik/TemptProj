@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 
 namespace TemptProj
@@ -48,5 +50,36 @@ namespace TemptProj
             }
         }
 
+        void operate_task()
+        {
+
+        }
+
+
+        void blink_task(int _periodMS)
+        {
+            TimerCallback _timerCB = new TimerCallback( _obj =>
+                    {
+                        Dispatcher.BeginInvoke(new Action(()=>
+                            {
+                                rectBlink.Fill = rectBlink.Fill != Brushes.Green ?
+                                    Brushes.Green : Brushes.White;
+                            }
+                        ));
+
+                    }
+                );
+
+            m_timer = new Timer(_timerCB, null, _periodMS, _periodMS);
+
+        }
+
+        void blink_task_stop()
+        {
+            rectBlink.Fill = Brushes.White;
+            m_timer.Dispose();
+        }
+
     }
+
 }
