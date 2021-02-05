@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace TemptProj.StateMachine
 {
-    class StRdy : State
+    public class StRdy : State
     {
-        public StRdy()
+        public StRdy(object _parent = null) : base(_parent)
         {
             EName = eState.READY;
         }
-        public override void operate()
+        public async override Task operate()
         {
-            base.operate();
+            await base.operate();
+
         }
     }
 }

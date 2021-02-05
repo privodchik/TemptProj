@@ -20,6 +20,8 @@ namespace TemptProj.StateMachine
         }
 
 
+        protected object m_parent;
+
         protected eState m_eName;
         protected string m_Name;
 
@@ -40,8 +42,22 @@ namespace TemptProj.StateMachine
             private set { m_Name = value; }
         }
 
-        public virtual void operate() {
+
+        public State(object _parent) { m_parent = _parent; }
+
+
+
+        protected CancellationTokenSource m_cts;
+        public virtual Task operate()
+        {
+            ((MainWindow)m_parent).lblState.Content = m_Name;
+            m_cts = new CancellationTokenSource();
+            return Task.FromResult(default(object));
         }
 
+
+        public virtual void reset() {
+            m_cts.Cancel();
+        }
     }
 }

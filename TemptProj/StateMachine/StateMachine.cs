@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TemptProj.StateMachine
@@ -17,20 +18,21 @@ namespace TemptProj.StateMachine
         private State m_currentState;
 
 
-        public StateMachine(object _parent = null)
+        public StateMachine(State[] _states, object _parent = null)
         {
-            m_states = new State[4] {
-                new StInit(),
-                new StRdy(),
-                new StRun(),
-                new StFlt()
-            };
+            m_states = _states;
             m_currentState = m_states[0];
+
+            m_parent = _parent;
         }
 
         public void state_set(State.eState _state)
         {
-            m_currentState = m_states[(int)_state];
+            if (_state != m_currentState.EName)
+            {
+                m_currentState.reset();
+                m_currentState = m_states[(int)_state];
+            }
         }
 
         public State state_set_next()
@@ -47,9 +49,9 @@ namespace TemptProj.StateMachine
             return m_currentState;
         }
 
-        public void operate()
+        public async Task operate_async(CancellationToken _ct)
         {
-            m_currentState.operate();
+            await m_currentState.operate();
         }
     }
 }

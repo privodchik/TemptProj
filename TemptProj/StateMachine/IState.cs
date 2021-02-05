@@ -10,7 +10,7 @@ namespace TemptProj.StateMachine
 
     interface IState
     {
-        
-        void operate();
+        Task operate();
+        void reset();
     }
 }

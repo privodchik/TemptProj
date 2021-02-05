@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
+using TemptProj.StateMachine;
 
 
 
@@ -24,7 +25,9 @@ namespace TemptProj
     /// </summary>
     public partial class MainWindow : Window
     {
-        public StateMachine.StateMachine m_stateMachine;
+
+        private State[] m_states;
+        public  StateMachine.StateMachine m_stateMachine;
 
         private SerialPort m_serialPort;
         private Modbus.ModBus m_modbus = new Modbus.ModBus();
@@ -32,13 +35,22 @@ namespace TemptProj
 
         private Timer m_timer;
 
-
+        private Task m_serialPortTask;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            m_stateMachine = new StateMachine.StateMachine(this);
+            m_states = new State[] 
+            {
+                    new StInit(this),
+                    new StRdy(this),
+                    new StRun(this),
+                    new StFlt(this)
+            };
+
+            m_stateMachine = new StateMachine.StateMachine(m_states, this);
+
             lblState.Content = m_stateMachine.state_get().Name;
 
             btnConnect.Tag = false;
@@ -60,17 +72,17 @@ namespace TemptProj
         {
 
             m_cts = new System.Threading.CancellationTokenSource();
-            modbus_task(m_cts.Token);
+            //modbus_task(m_cts.Token);
 
             operate_task();
 
             blink_task(1000);
 
-            state_machine_task(2000);
+            state_machine_task_async(100, m_cts.Token);
 
 
         }
-        async void modbus_task(System.Threading.CancellationToken _ct)
+        async void modbus_task(CancellationToken _ct)
         {
             txtBlckView.Inlines.Add("modbus task has been started\n");
             
@@ -86,7 +98,7 @@ namespace TemptProj
                 byte[] _msg = m_modbus.make_frame(1);
                 m_serialPort.Write(_msg, 0, _msg.Length);
 
-                Task _taskSendMsg = Task.Run((Action)send_frame, _ct);
+                Task _taskSendMsg = Task.Run(send_frame, _ct);
                 try
                 {
                     await waitWithTimout(_taskSendMsg, 5, _ct);
@@ -116,6 +128,31 @@ namespace TemptProj
             txtBlckView.Inlines.Add(new Run("modbus_task has been cancelled\n"));
             
         }
+
+        public async Task<byte[]> serial_port_poll_task(byte[] _txMsg, CancellationToken _ct)
+        {
+            Task _cycleTime = Task.Delay(100, _ct);
+
+            m_serialPort.DiscardOutBuffer();
+            m_serialPort.DiscardInBuffer();
+            m_serialPort.Write(_txMsg, 0, _txMsg.Length);
+            Task _tskSendMsg = Task.Run(send_frame, _ct);
+            try
+            {
+                await waitWithTimout(_tskSendMsg, 5, _ct);
+            }
+            catch
+            {
+                txtBlckEWr.Text = (++m_modbus.ErrorRDCounter).ToString();
+            }
+
+            byte[] _rxMsg = await Task.Run(rx_frame, _ct);
+
+            await _cycleTime;
+
+            return _rxMsg;
+        }
+
 
         async Task waitWithTimout(Task _task, int _timout, System.Threading.CancellationToken _ct)
         {
