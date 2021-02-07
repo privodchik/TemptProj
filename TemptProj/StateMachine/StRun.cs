@@ -12,9 +12,9 @@ namespace TemptProj.StateMachine
         {
             EName = eState.RUN;
         }
-        public async override Task operate()
+        public async override Task operate_async()
         {
-            await base.operate();
+            await base.operate_async();
         }
     }
 }

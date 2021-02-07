@@ -33,9 +33,7 @@ namespace TemptProj
         private Modbus.ModBus m_modbus = new Modbus.ModBus();
         private System.Threading.CancellationTokenSource m_cts;
 
-        private Timer m_timer;
-
-        private Task m_serialPortTask;
+        private Timer m_timerForBlink;
 
         public MainWindow()
         {
@@ -70,91 +68,12 @@ namespace TemptProj
 
         void background_func()
         {
-
-            m_cts = new System.Threading.CancellationTokenSource();
-            //modbus_task(m_cts.Token);
-
-            operate_task();
-
-            blink_task(1000);
-
+            m_cts = new CancellationTokenSource();
+            blink_task(1000, m_cts.Token);
             state_machine_task_async(100, m_cts.Token);
-
-
-        }
-        async void modbus_task(CancellationToken _ct)
-        {
-            txtBlckView.Inlines.Add("modbus task has been started\n");
-            
-
-            while (!_ct.IsCancellationRequested)
-            {
-                System.Diagnostics.Stopwatch _time = new System.Diagnostics.Stopwatch();
-                _time.Start(); 
-
-                Task _cycleTime  = Task.Delay(100, _ct);
-                                  
-                m_serialPort.DiscardOutBuffer();
-                byte[] _msg = m_modbus.make_frame(1);
-                m_serialPort.Write(_msg, 0, _msg.Length);
-
-                Task _taskSendMsg = Task.Run(send_frame, _ct);
-                try
-                {
-                    await waitWithTimout(_taskSendMsg, 5, _ct);
-                    
-                }
-                catch
-                {
-                    m_modbus.ErrorWRCounter++;
-                    txtBlckEWr.Text = m_modbus.ErrorWRCounter.ToString();
-                }
-
-                m_serialPort.DiscardInBuffer();
-                await Task.Run((Action)receive_frame, _ct);
-
-                try
-                {
-                    txtBlckERd.Text = (m_modbus.ErrorRDCounter).ToString();
-                    await _cycleTime;
-                }
-                catch
-                {
-
-                }
-                _time.Stop();
-                lblCycleTime.Content = _time.ElapsedMilliseconds;
-            }
-            txtBlckView.Inlines.Add(new Run("modbus_task has been cancelled\n"));
-            
         }
 
-        public async Task<byte[]> serial_port_poll_task(byte[] _txMsg, CancellationToken _ct)
-        {
-            Task _cycleTime = Task.Delay(100, _ct);
-
-            m_serialPort.DiscardOutBuffer();
-            m_serialPort.DiscardInBuffer();
-            m_serialPort.Write(_txMsg, 0, _txMsg.Length);
-            Task _tskSendMsg = Task.Run(send_frame, _ct);
-            try
-            {
-                await waitWithTimout(_tskSendMsg, 5, _ct);
-            }
-            catch
-            {
-                txtBlckEWr.Text = (++m_modbus.ErrorRDCounter).ToString();
-            }
-
-            byte[] _rxMsg = await Task.Run(rx_frame, _ct);
-
-            await _cycleTime;
-
-            return _rxMsg;
-        }
-
-
-        async Task waitWithTimout(Task _task, int _timout, System.Threading.CancellationToken _ct)
+        async Task wait_with_timout_async(Task _task, int _timout, CancellationToken _ct)
         {
             Task _delayTask = Task.Delay(_timout, _ct);
             Task _firstToFinish = await Task.WhenAny(_task, _delayTask);
@@ -200,9 +119,6 @@ namespace TemptProj
                 m_cts.Cancel();
                 m_serialPort.Close();
                 txtBlckView.Inlines.Add(new Run("Port has been closed\n") { Foreground = Brushes.Red });
-
-                blink_task_stop();
-
             }
 
             btnConnect.Content = Convert.ToBoolean(btnConnect.Tag) ? "Disconnect" : "Connect";
@@ -217,6 +133,12 @@ namespace TemptProj
         {
             txtBlckEWr.Text = (m_modbus.ErrorWRCounter = 0).ToString();
             txtBlckERd.Text = (m_modbus.ErrorRDCounter = 0).ToString();
+        }
+
+        private void btnSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            m_serialPort.BaudRate = Convert.ToInt32(cmbBaud.Text);
+            txtBlckView.Inlines.Add(new Run("Port " + m_serialPort.PortName + " baud is " + m_serialPort.BaudRate + "\n") { Foreground = Brushes.Blue });
         }
     }
 }

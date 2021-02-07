@@ -20,40 +20,6 @@ namespace TemptProj
                 await Task.Delay(1, m_cts.Token);
             }
         }
-
-        async void receive_frame()
-        {
-            try
-            {
-                await Task.Delay(5, m_cts.Token);
-            }
-            catch { }
-
-            int _oldDataInInputBuffer = m_serialPort.BytesToRead;
-
-            if (_oldDataInInputBuffer > 0)
-            {
-                while (true)
-                {
-                    await Task.Delay(3, m_cts.Token);
-                    if (m_serialPort.BytesToRead == _oldDataInInputBuffer)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        _oldDataInInputBuffer = m_serialPort.BytesToRead;
-                    }
-                }
-                m_modbus.input_buffer_resize((byte)_oldDataInInputBuffer);
-                m_serialPort.Read(m_modbus.input_buffer_get(), 0, _oldDataInInputBuffer);
-            }
-            else
-            {
-                ++m_modbus.ErrorRDCounter;
-            }
-        }
-
         async Task<byte[]> rx_frame()
         {
             byte[] _rxMsg = null;
@@ -91,9 +57,28 @@ namespace TemptProj
             return _rxMsg;
         }
 
-        void operate_task()
+        public async Task<byte[]> serial_port_poll_task(byte[] _txMsg, CancellationToken _ct)
         {
+            Task _cycleTime = Task.Delay(100, _ct);
 
+            m_serialPort.DiscardOutBuffer();
+            m_serialPort.DiscardInBuffer();
+            m_serialPort.Write(_txMsg, 0, _txMsg.Length);
+            Task _tskSendMsg = Task.Run(send_frame, _ct);
+            try
+            {
+                await wait_with_timout_async(_tskSendMsg, 5, _ct);
+            }
+            catch
+            {
+                txtBlckEWr.Text = (++m_modbus.ErrorRDCounter).ToString();
+            }
+
+            byte[] _rxMsg = await Task.Run(rx_frame, _ct);
+
+            await _cycleTime;
+
+            return _rxMsg;
         }
 
         async void state_machine_task_async(int _periodMS, CancellationToken  _ct)
@@ -111,7 +96,7 @@ namespace TemptProj
             }
         }
 
-        void blink_task(int _periodMS)
+        void blink_task(int _periodMS, CancellationToken _ct)
         {
             TimerCallback _timerCB = new TimerCallback( _obj =>
                     {
@@ -122,17 +107,20 @@ namespace TemptProj
                             }
                         ));
 
+                        if (((CancellationToken)_obj).IsCancellationRequested)
+                        {
+                            Dispatcher.BeginInvoke(new Action(()=>
+                            {
+                                rectBlink.Fill = Brushes.White;
+                            }));
+                            m_timerForBlink.Dispose();
+                        }
+
                     }
                 );
 
-            m_timer = new Timer(_timerCB, null, _periodMS, _periodMS);
+            m_timerForBlink = new Timer(_timerCB, _ct, _periodMS, _periodMS);
 
-        }
-
-        void blink_task_stop()
-        {
-            rectBlink.Fill = Brushes.White;
-            m_timer.Dispose();
         }
 
     }

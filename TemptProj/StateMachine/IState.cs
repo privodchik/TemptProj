@@ -10,7 +10,7 @@ namespace TemptProj.StateMachine
 
     interface IState
     {
-        Task operate();
+        Task operate_async();
         void reset();
     }
 }

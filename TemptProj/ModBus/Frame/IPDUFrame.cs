@@ -13,8 +13,10 @@ namespace TemptProj.ModBus.Frame
         RD_INPUTS = 4,
         WR_HOLDINGS = 16
     }
-    public interface IFrame
+
+    public interface IPDUFrame
     {
-        void make();
+        ushort StartAddress { get; set; }
+        byte[] make();
     }
 }

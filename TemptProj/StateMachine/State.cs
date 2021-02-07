@@ -48,7 +48,7 @@ namespace TemptProj.StateMachine
 
 
         protected CancellationTokenSource m_cts;
-        public virtual Task operate()
+        public virtual Task operate_async()
         {
             ((MainWindow)m_parent).lblState.Content = m_Name;
             m_cts = new CancellationTokenSource();

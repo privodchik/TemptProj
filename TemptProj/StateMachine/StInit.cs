@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TemptProj.ModBus.Frame;
 
 
 namespace TemptProj.StateMachine
@@ -14,29 +15,31 @@ namespace TemptProj.StateMachine
         {
             EName = eState.INI;
         }
-        public async override Task operate() {
-            await base.operate();
+        public async override Task operate_async() {
+            await base.operate_async();
 
-            byte[] _mas = { 0x01,
-                            0x03,
-                            0x00, 0x00,
-                            0x00, 0x01,
-                            0x84, 0x0A
-                          };
+            PDUReadInputs _framePDU = new ModBus.Frame.PDUReadInputs();
+            _framePDU.StartAddress = 0;
+            _framePDU.RegsQuant = 1;
+            _framePDU.make();
+
+            byte _slAddr = 1;
+            byte[] _adu =   Modbus.ModBus.make_frame(_slAddr, _framePDU.PduBuffer);
 
             byte[] _rxMsg = null;
             try
             {
-                _rxMsg = await ((MainWindow)m_parent).serial_port_poll_task(_mas, m_cts.Token);
+                _rxMsg = await ((MainWindow)m_parent).serial_port_poll_task(_adu, m_cts.Token);
             }
             catch { }
 
-            if (_rxMsg != null)
+            if (Modbus.ModBus.check_frame(_rxMsg))
             {
-                ushort _val = (ushort)((_rxMsg[3] << 8) | _rxMsg[4]);
-                ((MainWindow)m_parent).m_stateMachine.state_set(eState.READY);
+                if (Modbus.ModBus.check_slave_address(_rxMsg, _slAddr))
+                    ((MainWindow)m_parent).m_stateMachine.state_set(eState.READY);
             }
-
+            else
+                return;
                 
         }
 

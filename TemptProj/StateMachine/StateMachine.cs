@@ -51,7 +51,7 @@ namespace TemptProj.StateMachine
 
         public async Task operate_async(CancellationToken _ct)
         {
-            await m_currentState.operate();
+            await m_currentState.operate_async();
         }
     }
 }
