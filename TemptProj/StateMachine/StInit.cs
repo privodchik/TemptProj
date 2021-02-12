@@ -36,7 +36,8 @@ namespace TemptProj.StateMachine
             if (Modbus.ModBus.check_frame(_rxMsg))
             {
                 if (Modbus.ModBus.check_slave_address(_rxMsg, _slAddr))
-                    ((MainWindow)m_parent).m_stateMachine.state_set(eState.READY);
+                    state_set(eState.READY);
+
             }
             else
                 return;

@@ -41,6 +41,7 @@ namespace TemptProj
 
             m_states = new State[] 
             {
+                    new StStop(this),
                     new StInit(this),
                     new StRdy(this),
                     new StRun(this),

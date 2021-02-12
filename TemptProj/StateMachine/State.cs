@@ -13,7 +13,8 @@ namespace TemptProj.StateMachine
         
         public enum eState
         {
-            INI = 0,
+            STOP = 0,
+            INI,
             READY,
             RUN,
             FLT
@@ -58,6 +59,11 @@ namespace TemptProj.StateMachine
 
         public virtual void reset() {
             m_cts.Cancel();
+        }
+
+        public void state_set(eState _state)
+        {
+            ((MainWindow)m_parent).m_stateMachine.state_set(_state);
         }
     }
 }
