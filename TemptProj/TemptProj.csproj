@@ -87,6 +87,7 @@
     <Compile Include="StateMachine\StInit.cs" />
     <Compile Include="StateMachine\StRun.cs" />
     <Compile Include="StateMachine\StStop.cs" />
+    <Compile Include="Work\Configurations.cs" />
     <Compile Include="Work\MainWindow.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -65,7 +65,11 @@ namespace TemptProj
 
                 cmbPort.SelectedIndex = 0;
             }
+
+            read_configuration();
         }
+
+
 
         void background_func()
         {
